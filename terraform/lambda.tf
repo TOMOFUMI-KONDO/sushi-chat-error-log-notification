@@ -60,6 +60,13 @@ resource "aws_lambda_permission" "cloudwatch_logs_app_info" {
   source_arn    = data.aws_cloudwatch_log_group.ec2_app_info.arn
 }
 
+resource "aws_lambda_permission" "cloudwatch_logs_nginx_access" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.error-log-notification.function_name
+  principal     = "logs.ap-northeast-1.amazonaws.com"
+  source_arn    = data.aws_cloudwatch_log_group.ec2_nginx_access.arn
+}
+
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_app_error" {
   name            = "${var.project}-cloudwatch_logs_app_error"
   destination_arn = aws_lambda_function.error-log-notification.arn
@@ -82,4 +89,12 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_app_info" {
   log_group_name  = data.aws_cloudwatch_log_group.ec2_app_info.name
   filter_pattern  = ""
   depends_on      = [aws_lambda_permission.cloudwatch_logs_app_info]
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_nginx_access" {
+  name            = "${var.project}-cloudwatch_logs_nginx_access"
+  destination_arn = aws_lambda_function.error-log-notification.arn
+  log_group_name  = data.aws_cloudwatch_log_group.ec2_nginx_access.name
+  filter_pattern  = ""
+  depends_on      = [aws_lambda_permission.cloudwatch_logs_nginx_access]
 }
