@@ -39,32 +39,47 @@ resource "aws_iam_role" "error-log-notification" {
   }
 }
 
-resource "aws_lambda_permission" "cloudwatch_logs_app" {
-  action = "lambda:InvokeFunction"
+resource "aws_lambda_permission" "cloudwatch_logs_app_error" {
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.error-log-notification.function_name
-  principal = "logs.ap-northeast-1.amazonaws.com"
-  source_arn = data.aws_cloudwatch_log_group.ec2_app_error.arn
+  principal     = "logs.ap-northeast-1.amazonaws.com"
+  source_arn    = data.aws_cloudwatch_log_group.ec2_app_error.arn
 }
 
-resource "aws_lambda_permission" "cloudwatch_logs_nginx" {
-  action = "lambda:InvokeFunction"
+resource "aws_lambda_permission" "cloudwatch_logs_nginx_error" {
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.error-log-notification.function_name
-  principal = "logs.ap-northeast-1.amazonaws.com"
-  source_arn = data.aws_cloudwatch_log_group.ec2_nginx_error.arn
+  principal     = "logs.ap-northeast-1.amazonaws.com"
+  source_arn    = data.aws_cloudwatch_log_group.ec2_nginx_error.arn
 }
 
-resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_app" {
-  name = "${var.project}-cloudwatch_logs_app"
-  destination_arn = aws_lambda_function.error-log-notification.arn
-  log_group_name = data.aws_cloudwatch_log_group.ec2_app_error.name
-  filter_pattern = ""
-  depends_on = [aws_lambda_permission.cloudwatch_logs_app]
+resource "aws_lambda_permission" "cloudwatch_logs_app_info" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.error-log-notification.function_name
+  principal     = "logs.ap-northeast-1.amazonaws.com"
+  source_arn    = data.aws_cloudwatch_log_group.ec2_app_info.arn
 }
 
-resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_nginx" {
-  name = "${var.project}-cloudwatch_logs_nginx"
+resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_app_error" {
+  name            = "${var.project}-cloudwatch_logs_app_error"
   destination_arn = aws_lambda_function.error-log-notification.arn
-  log_group_name = data.aws_cloudwatch_log_group.ec2_nginx_error.name
-  filter_pattern = ""
-  depends_on = [aws_lambda_permission.cloudwatch_logs_nginx]
+  log_group_name  = data.aws_cloudwatch_log_group.ec2_app_error.name
+  filter_pattern  = ""
+  depends_on      = [aws_lambda_permission.cloudwatch_logs_app_error]
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_nginx_error" {
+  name            = "${var.project}-cloudwatch_logs_nginx_error"
+  destination_arn = aws_lambda_function.error-log-notification.arn
+  log_group_name  = data.aws_cloudwatch_log_group.ec2_nginx_error.name
+  filter_pattern  = ""
+  depends_on      = [aws_lambda_permission.cloudwatch_logs_nginx_error]
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_app_info" {
+  name            = "${var.project}-cloudwatch_logs_app_info"
+  destination_arn = aws_lambda_function.error-log-notification.arn
+  log_group_name  = data.aws_cloudwatch_log_group.ec2_app_info.name
+  filter_pattern  = ""
+  depends_on      = [aws_lambda_permission.cloudwatch_logs_app_info]
 }

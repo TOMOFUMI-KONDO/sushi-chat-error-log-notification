@@ -1,8 +1,8 @@
-variable "profile" {
+variable "project" {
   type = string
 }
 
-variable "project" {
+variable "profile" {
   type = string
 }
 
