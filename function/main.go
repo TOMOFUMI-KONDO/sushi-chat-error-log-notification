@@ -36,7 +36,7 @@ func handler(ctx context.Context, request Request) error {
 		return handleErr("decode", err)
 	}
 	var logData LogData
-	if err := json.Unmarshal(data, &logData); err != nil {
+	if err = json.Unmarshal(data, &logData); err != nil {
 		return handleErr("json.Unmarshal", err)
 	}
 
@@ -44,12 +44,12 @@ func handler(ctx context.Context, request Request) error {
 	if err != nil {
 		return handleErr("discordgo.New", err)
 	}
-	if err := dg.Open(); err != nil {
+	if err = dg.Open(); err != nil {
 		return handleErr("dg.Open", err)
 	}
 	defer dg.Close()
 
-	sendLog(dg, channelID, logData.LogEvents[0].Message)
+	sendLog(dg, channelID, logData)
 
 	return nil
 }
@@ -73,10 +73,12 @@ func decode(data string) ([]byte, error) {
 	return b, nil
 }
 
-func sendLog(s *discordgo.Session, channelID string, msg string) {
-	_, err := s.ChannelMessageSend(channelID, msg)
-	if err != nil {
-		log.Println("Error sending message: ", err)
+func sendLog(s *discordgo.Session, channelID string, logData LogData) {
+	for _, logEvent := range logData.LogEvents {
+		_, err := s.ChannelMessageSend(channelID, logEvent.Message)
+		if err != nil {
+			log.Println("Error sending message: ", err)
+		}
 	}
 }
 
